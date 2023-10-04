@@ -7,12 +7,15 @@
 </head>
 <body>
     <h1>Data Products</h1>
-    <table border="1" cellpadding ="10">
+    <a href="<?=base_url('insertproducts/')?>"><button>Tambah Data</button></a>
+
+    <table border="1" cellpadding ="10" style="margin-top: 20px;">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Nama Product</th>
                 <th>Deskripsi</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +24,10 @@
                 <td><?=$p->id?></td>
                 <td><?=$p->nama_product?></td>
                 <td><?=$p->description?></td>
+                <td>
+                    <a href="<?=base_url('edit-products/' . $p->id)?>" style="margin-right: 5px">Edit </a>
+                    <a href="<?=base_url('delete-products/' . $p->id)?>)" style="margin-left: 5px" >Hapus</a>
+                </td>
             </tr>
             <?php endforeach?>
         </tbody>
