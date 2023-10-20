@@ -1,0 +1,14 @@
+{
+    "code" :  404,
+    "status" : "NOT FOUND",
+    "data" : [
+        {
+        "nama" :  "Surya",
+        "number" : 20
+        },
+        {
+            "nama" :  "Surya",
+            "number" : 20
+            }
+    ]
+}
