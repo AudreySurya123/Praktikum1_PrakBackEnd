@@ -10,64 +10,77 @@ class ProductController extends BaseController {
     public function __construct(){
         $this->product = new ProductModel();
     }
-    public function insertProduct() {
-        if ($this->request->getMethod() === 'post') {
-            // Mendapatkan data dari form
-            $nama_product = $this->request->getVar("nama_product");
-            $description = $this->request->getVar("description");
-            
-            // Mengecek apakah data yang diterima valid
-            if ($nama_product && $description) {
-                // Data yang akan diinsert
-                $data = [
-                    'nama_product' => $nama_product,
-                    'description' => $description
-                ];
-    
-                // Melakukan insert
-                $this->product->insertProductORM($data);
-    
-                // Redirect setelah berhasil diinsert
-                return redirect()->to(base_url("products"));
-            } else {
-                // Menampilkan pesan error jika data tidak valid
-                echo "Data tidak valid. Pastikan semua field terisi.";
-            }
-        }
-    
-        // Menampilkan form untuk input data
-        return view('insert_product');
-    }
-
-
-    public function readProduct() {
-        $products = $this->product->findAll();
+    public function insertProductORM(){
         $data = [
-            "data"=>$products
+            'nama_product' => $this->request->getPost('nama_product'),
+            'description' => $this->request->getPost('description')
         ];
 
-        return view('product', $data);
+        $this->product->insertProductORM($data);
+        return redirect()->to('products');
     }
-    
 
-    public function readProductApi(){
-        $products = $this->product->findAll();
+    public function insertProductApi(){
+        $requestData = $this->request->getJSON();
 
-        return $this->respond(
+        $validation = $this->validate([
+            'nama_product'=> 'required',
+            'description'=> 'required'
+        ]);
+
+        if(!$validation){
+            $this->response->setStatusCode(400);
+            return $this->response->setJSON([
+                'code' => 400,
+                'status' => "BAD REQUEST",
+                'data' => null
+            ]);
+        }
+        $data = [
+            'nama_product' => $requestData->nama_product,
+            'description' => $requestData->description,
+        ];
+
+        $insert = $this->product->insertProductORM($data);
+        if ($insert){
+            return $this->respond([
+                'code' =>200,
+                'status' => 'OK',
+                'data' => $data
+            ]);
+        }
+
+        $this->response->setStatusCode(500);
+        return $this->response->setJSON(
             [
-                'code' => 200,
-                'status' => "OK",
-                'data' => $products
+                'code' =>500,
+                'status' => 'INTERNAL SERVER ERROR',
+                'data' => 'null'
             ]
         );
     }
 
-    public function getProduct($id) {
-        $product = $this->product->where('id', $id)->first();
+    public function insertPage(){
+        return view('insertproduct');
+    }
+
+    public function readProduct(){
+        $products = $this->product->findAll();
         $data = [
-            'product' => $product
+            'data' => $products
         ];
+
         return view('product', $data);
+    }
+
+    public function ReadProductApi(){
+        $products = $this->product->findAll();
+
+        return $this->respond([
+            'code' => 200,
+            'status' => 'OK',
+            'data' => $products
+        ]);
     }
 
 
@@ -82,11 +95,21 @@ class ProductController extends BaseController {
                 'data' => null
             ]);
         }
+        
         return $this->response->setJSON([
             'code' => 200,
             'status' => "OK",
             'data' => $product
         ]);
+        
+    }
+
+    public function getProduct($id) {
+        $product = $this->product->where('id', $id)->first();
+        $data = [
+            'product' => $product
+        ];
+        return view('edit_product', $data);
     }
 
     public function updateProduct($id) {
